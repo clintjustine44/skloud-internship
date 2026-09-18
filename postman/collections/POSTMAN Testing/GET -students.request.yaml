@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /students
+url: ""
+method: GET
+order: 1000

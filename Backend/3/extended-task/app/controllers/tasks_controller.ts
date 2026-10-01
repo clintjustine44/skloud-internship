@@ -42,7 +42,7 @@ export default class TasksController {
       return response.status(404).json({ message: 'Task not found' })
     }
 
-    // Task 5: Ownership Check
+    // Ownership Check
     if (task.userId !== auth.user!.id) {
       return response.status(403).json({ message: 'Forbidden' })
     }
@@ -66,7 +66,7 @@ export default class TasksController {
       return response.status(404).json({ message: 'Task not found' })
     }
 
-    // Task 5: Ownership Check
+    // Ownership Check
     if (task.userId !== auth.user!.id) {
       return response.status(403).json({ message: 'Forbidden' })
     }

@@ -1,0 +1,103 @@
+@baseUrl = http://localhost:3333
+
+### Task 1: Register User 1
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "passwordConfirmation": "password123"
+}
+
+### Task 2: Login User 1 (Extracts bearer token automatically)
+# @name login
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+### Extract Token from Login Response
+@authToken = {{login.response.body.data.token}}
+
+### Task 3: Get Authenticated User Profile
+GET {{baseUrl}}/me
+Authorization: Bearer {{authToken}}
+
+### Task 4a: Get All Tasks (Initially empty)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{authToken}}
+
+### Task 4b: Create a Task
+# @name createTask
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Complete Task API",
+  "description": "Implement authentication and ownership checks",
+  "status": "pending"
+}
+
+### Extract Task ID from Creation Response
+@taskId = {{createTask.response.body.id}}
+
+### Task 4c: Get Single Task by ID
+GET {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{authToken}}
+
+### Task 4d: Update Task
+PATCH {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+### Task 5: Verify Ownership Protection (User 2 Scenario)
+
+### 1. Register User 2
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "fullName": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "password123",
+  "passwordConfirmation": "password123"
+}
+
+### 2. Login User 2
+# @name loginUser2
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "password123"
+}
+###
+@authTokenUser2 = {{loginUser2.response.body.data.token}}
+
+### 3. Attempt to update User 1's task with User 2's token (Should return 403 Forbidden or 404 Not Found)
+PATCH {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{authTokenUser2}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### 4. Attempt to delete User 1's task with User 2's token (Should return 403 Forbidden or 404 Not Found)
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{authTokenUser2}}
+
+### Task 4e: Delete Task (as Task Owner)
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{authToken}}
